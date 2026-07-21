@@ -154,3 +154,34 @@ Strategy Optimizer adds any of 98 proprietary ORATS indicators (includes everyth
 
 ## Section 300 SUMMARY
 All five sections (301-305) describe the Trading Tools Backtester and Strategy Optimizer, a separate paid product from the Data API. Mike currently only has the Data API subscription. If Mike ever wants to actually RUN these backtests (not just understand the methodology), that requires the additional Trading Tools subscription, previously considered and declined in favor of API-only. Useful conceptually for understanding what a rigorous backtest looks like (execution price realism, slippage, P-value validation), which can inform Mikes own manual historical analysis approach already used successfully for contango and VIX threshold calibration.
+
+
+## ORATS University Section 400 - Implementation, Risk, Review (Trading Tools platform, NOT Data API)
+
+IMPORTANT: Like section 300, the entire 400 series describes Trading Tools features, not the Data API. Actual section count is 401-405, not 406 as originally assumed.
+
+### 401 - Stock Scanning
+Scans 5000 plus tickers comparing indicators to own history (moving averages), forecasts, and related equities. Over 30 sector ETF benchmarks suffixed underscore C, e.g. XLK_C for tech, SPY_C for SPY itself.
+TWO SCAN TEMPLATES DIRECTLY RELEVANT to Mikes future scanning system:
+Put-call skew cheap: slope lower than recent levels, low slope percentile, high slope forecast vs current - candidate for COLLAR strategy
+Put-call skew rich: slope higher than recent levels, high slope percentile, low slope forecast vs current - candidate for RISK REVERSAL strategy
+These use exactly the fields already tested and confirmed working: slope, slopepctile, slopeFcst. Could be replicated in Mikes own scanner without needing Trading Tools subscription.
+Other templates: unusual call/put volume, earnings this week, high/low IV30d, hard-to-borrow.
+
+### 402 - Option Scanning
+Three theoretical edges once a stock is scanned: Distribution edge (D%) based on 15 plus years historical price move probability, Forecast edge (F%) based on ORATS volatility surface forecast, Smoothed edge (S%) based on proprietary SMV pricing. Plus 20 filterable columns: Greeks, POP%, reward risk, market width, DTE, breakevens, open interest, volume.
+
+### 403 - Trade Ideas and Signals
+Central dashboard aggregating four sources: Backtest Finder (matches current conditions against 300 million plus historical backtests), Curated Strategies (ORATS team optimized), My Strategies (own saved), Option Scans. Plus market intelligence: Time and Sales, Top Movers, Unusual Volume, Earnings/Dividends calendar, Macro Calendar.
+
+### 404 - Placing Orders
+Profit attribution breaks price changes into 8 factors: Delta, Gamma, Vega, Prior/Current Marks, Theta, Slope, Unknown. Payoff diagrams with what-if scenarios for IV change and DTE change. Five exit alert types: Trade, Event, Indicator, Leg, Time-based - conceptually similar to alerts already built for Mikes system. Broker connections: Tradier, TradeStation, Interactive Brokers - NOTE Tastytrade is not listed as a supported broker connection in Trading Tools.
+
+### 405 - Review
+Trade Journal for automated position tracking, works with ORATS paper trading accounts or CSV import for Interactive Brokers. Performance visualization, behavioral pattern detection, validates whether live results matched backtest expectations.
+
+## Section 400 SUMMARY
+All five sections (401-405) describe Trading Tools features, not the Data API. Most directly relevant to Mikes own build: the 401 put-call skew cheap/rich scan logic, which uses fields already tested and working (slope, slopepctile, slopeFcst) and could be replicated in a custom scanner script without needing the Trading Tools subscription.
+
+## ORATS UNIVERSITY FULLY COMPLETE
+All sections 200 through 400 (201-204, 301-305, 401-405) have been read in full and summarized as of 2026-07-20. Section 100 (101-103, Introduction) was not covered as it was not requested.

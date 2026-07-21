@@ -1,0 +1,4 @@
+addition = "\n### 402 - Option Scanning\nThree theoretical edges once a stock is scanned: Distribution edge (D%) based on 15 plus years historical price move probability, Forecast edge (F%) based on ORATS volatility surface forecast, Smoothed edge (S%) based on proprietary SMV pricing. Plus 20 filterable columns: Greeks, POP%, reward risk, market width, DTE, breakevens, open interest, volume.\n\n### 403 - Trade Ideas and Signals\nCentral dashboard aggregating four sources: Backtest Finder (matches current conditions against 300 million plus historical backtests), Curated Strategies (ORATS team optimized), My Strategies (own saved), Option Scans. Plus market intelligence: Time and Sales, Top Movers, Unusual Volume, Earnings/Dividends calendar, Macro Calendar.\n"
+with open('orats_endpoints_notes.md', 'a') as f:
+    f.write(addition)
+print("400b notes appended")
