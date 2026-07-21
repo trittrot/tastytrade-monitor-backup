@@ -25,10 +25,15 @@ def fetch_term_structure():
     with urllib.request.urlopen(url2) as response:
         cores_data = json.loads(response.read())['data'][0]
 
-    combined = {**summaries_data, **cores_data}
+    ivrank_fields = 'ticker,tradeDate,ivRank1m,ivPct1m,ivRank1y,ivPct1y'
+    url3 = f'https://api.orats.io/datav2/ivrank?token={token}&ticker={TICKER}&fields={ivrank_fields}'
+    with urllib.request.urlopen(url3) as response:
+        ivrank_data = json.loads(response.read())['data'][0]
+
+    combined = {**summaries_data, **cores_data, **ivrank_data}
     return combined
 
-FIELD_ORDER = ['tradeDate','exErnIv10d','exErnIv20d','exErnIv30d','exErnIv60d','exErnIv90d','exErnIv6m','exErnIv1y','contango','fwd30_20','fwd60_30','fwd90_60','fwd180_90','fwd90_30','fbfwd30_20','fbfwd60_30','fbfwd90_60','fbfwd180_90','fbfwd90_30','confidence','iv30d','rSlp30','slope','slopeInf','slopeFcst','slopeFcstInf','slopepctile','ivPctile1y','ivHvXernRatio','orHvXern20d','deriv','derivInf']
+FIELD_ORDER = ['tradeDate','exErnIv10d','exErnIv20d','exErnIv30d','exErnIv60d','exErnIv90d','exErnIv6m','exErnIv1y','contango','fwd30_20','fwd60_30','fwd90_60','fwd180_90','fwd90_30','fbfwd30_20','fbfwd60_30','fbfwd90_60','fbfwd180_90','fbfwd90_30','confidence','iv30d','rSlp30','slope','slopeInf','slopeFcst','slopeFcstInf','slopepctile','ivPctile1y','ivRank1m','ivPct1m','ivRank1y','ivPct1y','ivHvXernRatio','orHvXern20d','deriv','derivInf']
 
 def log_term_structure(data):
     today = date.today().isoformat()
@@ -81,6 +86,8 @@ def build_email_body(data):
     lines.append('  slopepctile: ' + str(data.get('slopepctile','')))
     lines.append('')
     lines.append('ivPctile1y: ' + str(data.get('ivPctile1y','')))
+    lines.append('ivRank1m: ' + str(data.get('ivRank1m','')) + '  ivPct1m: ' + str(data.get('ivPct1m','')))
+    lines.append('ivRank1y: ' + str(data.get('ivRank1y','')) + '  ivPct1y: ' + str(data.get('ivPct1y','')))
     lines.append('ivHvXernRatio: ' + str(data.get('ivHvXernRatio','')))
     lines.append('orHvXern20d: ' + str(data.get('orHvXern20d','')))
     lines.append('')
