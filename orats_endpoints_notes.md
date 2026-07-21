@@ -185,3 +185,32 @@ All five sections (401-405) describe Trading Tools features, not the Data API. M
 
 ## ORATS UNIVERSITY FULLY COMPLETE
 All sections 200 through 400 (201-204, 301-305, 401-405) have been read in full and summarized as of 2026-07-20. Section 100 (101-103, Introduction) was not covered as it was not requested.
+
+
+## SPY Term Structure Analysis - Complete Field Taxonomy (verified 2026-07-21)
+
+Correction to earlier work: iv30d_orHvXern20d is NOT a real field name. The genuine field for IV vs HV ratio concept is ivHvXernRatio, located on Core General (cores endpoint), not Summaries. Lesson repeated again: field availability is strictly endpoint-specific even when documentation groups fields together on one page.
+
+### On Summaries endpoint (/datav2/summaries)
+Spot ex-earnings IV curve, 7 tenors: exErnIv10d, exErnIv20d, exErnIv30d, exErnIv60d, exErnIv90d, exErnIv6m, exErnIv1y
+contango - near term slope summary, already built into live monitor
+Forward curve: fwd30_20, fwd60_30, fwd90_60, fwd180_90, fwd90_30
+Flat forward and ratio: ffwd and fbfwd variants for same tenor pairs, extremes in fbfwd ratio historically foreshadow larger moves per ORATS University 203
+confidence - data quality indicator
+iv30d - tested SPY 2026-07-21: 0.138 (13.8 percent)
+rSlp30 - tested same date: 7.8398, confirmed this is the Summaries-endpoint name for the same concept as slope on Cores
+
+### On Cores endpoint (/datav2/cores)
+slope, slopeInf, slopeFcst, slopeFcstInf - full slope family
+slopepctile - one year percentile for slope
+ivPctile1y - percentile of current orIv vs year range
+ivHvXernRatio - tested SPY 2026-07-21: 1.11, this is the genuine IV vs HV ratio field (implied vol divided by historical vol, ex-earnings)
+orHvXern20d - tested same date: 12.84 percent, the actual 20-day historical volatility ex-earnings component used in the ratio above
+deriv, derivInf - curvature of skew
+
+### Recommended approach for full term structure analysis (not just contango alone)
+1. Pull full exErnIv curve across all 7 tenors daily, not just contango, to see the whole curve shape rather than just the near-term slope
+2. Use contango as a fast daily alert trigger (already built)
+3. Layer in the forward curve (fwd fields) to see what the market expects BETWEEN future dates, which can be more revealing than spot levels alone
+4. Watch fbfwd ratios for extremes as an anomaly check per ORATS guidance
+5. GAP: unlike slope, contango has no built-in percentile field (no contangopctile exists) - would need manual historical calculation for percentile context on the full curve, same approach already used for the 10-day moving average work
