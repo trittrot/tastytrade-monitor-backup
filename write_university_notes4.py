@@ -1,0 +1,4 @@
+addition = "\n## 204 - Historical Data\nORATS sells three separate raw bulk data products, distinct from the Data API subscription Mike uses: near end-of-day FTP files since 2007, 1-minute intraday data since August 2020, and physical hard drive delivery for the full intraday archive. Not currently relevant to Mikes system, noted for reference only if deeper independent research is ever needed.\n\n## Practical implication for Mikes system\nAs of this note, orats_contango_monitor.py compares todays contango only to the previous days reading. ORATS own documentation recommends comparing against a 10 day moving average instead, as a signal of regime change. This is a planned enhancement, see the live script and git history for current implementation status.\n"
+with open('orats_university_notes.md', 'a') as f:
+    f.write(addition)
+print("Chunk 4 written - document complete")

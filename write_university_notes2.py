@@ -1,0 +1,4 @@
+addition = "\n## 202 - Volatility Around Earnings\nIV rises heading into earnings because the market prices in extra uncertainty from the announcement. ORATS mathematically isolates this earnings effect to calculate ex-earnings IV, which allows fair comparison across time and between stocks with different earnings calendars.\n\nImplied earnings move is the percent move priced into options ahead of an announcement, comparable against the actual historical move to judge whether straddles or strangles were good value.\n\nInter-earnings IV and HV compares historical volatility over the last three calendar months to the IV priced in for the upcoming quarter, both measured right after an announcement, to see if upcoming IV is overshooting recent realized volatility.\n"
+with open('orats_university_notes.md', 'a') as f:
+    f.write(addition)
+print("Chunk 2 written")

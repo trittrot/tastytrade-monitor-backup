@@ -1,0 +1,4 @@
+content = "# ORATS University Notes - Volatility Surface (Sections 200-204)\n\nSummarized from https://orats.com/university on 2026-07-20, for reference in future sessions.\n\n## 201 - Volatility Surface\nThe volatility surface is implied volatility across every strike and expiration for one stock. Two useful slices: term structure (at-the-money IV across expirations) and skew (IV across strikes for one expiration).\n\nContango: short-term IV lower than long-term IV, the normal state. Backwardation: short-term IV higher than long-term, the reverse, associated with stress.\n\nSkew typically forms a U shape, called the smile. Slope measures the steepness or lopsidedness of the skew, drawn as a tangent line at the 50 delta.\n"
+with open('orats_university_notes.md', 'w') as f:
+    f.write(content)
+print("Chunk 1 written")
