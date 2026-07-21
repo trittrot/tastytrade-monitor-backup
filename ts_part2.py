@@ -1,0 +1,4 @@
+addition = "\nFIELD_ORDER = ['tradeDate','exErnIv10d','exErnIv20d','exErnIv30d','exErnIv60d','exErnIv90d','exErnIv6m','exErnIv1y','contango','fwd30_20','fwd60_30','fwd90_60','fwd180_90','fwd90_30','fbfwd30_20','fbfwd60_30','fbfwd90_60','fbfwd180_90','fbfwd90_30','confidence','iv30d','rSlp30','slope','slopeInf','slopeFcst','slopeFcstInf','slopepctile','ivPctile1y','ivHvXernRatio','orHvXern20d','deriv','derivInf']\n\ndef log_term_structure(data):\n    today = date.today().isoformat()\n    file_exists = os.path.exists(LOG_PATH)\n    with open(LOG_PATH, 'a', newline='') as f:\n        writer = csv.writer(f)\n        if not file_exists:\n            writer.writerow(FIELD_ORDER)\n        row = [data.get(field, '') for field in FIELD_ORDER]\n        writer.writerow(row)\n    print('Logged ' + str(len(FIELD_ORDER)) + ' fields for ' + today)\n"
+with open('spy_term_structure.py', 'a') as f:
+    f.write(addition)
+print("Chunk 2 written")
