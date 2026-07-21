@@ -1,0 +1,4 @@
+addition = "\n### 303 - Measuring Performance\n37 performance metrics across four categories: Return, Risk, P&L, Others. Sharpe vs Sortino ratio explained, Sortino only penalizes downside volatility, may suit Mikes risk averse approach better. Three ranking algorithms: Best Overall Performance, Best Conservative Winner, Best Return on Risk.\n\n### 304 - Custom Backtesting\nBuild fully custom backtests, not just search precomputed ones. 15 plus entry parameters, matching exit parameters. Two modes: End of Day (2007 to present) and Intraday (1 minute data, August 2020 to present). Exact slippage formula given: Buy = Bid plus (Ask minus Bid) times slippage percent. Commission 1 dollar per contract plus 0.01 per share of stock.\n"
+with open('orats_endpoints_notes.md', 'a') as f:
+    f.write(addition)
+print("300b notes appended")

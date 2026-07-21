@@ -131,3 +131,26 @@ Per ORATS University section 203, extremes in this ratio have historically fores
 
 ## Section 200 University Cross-Reference - FULLY COMPLETE
 Every field explicitly discussed in sections 201, 202, and 203 has now been tested and confirmed working with real data, across the Summaries and Cores endpoints. Section 204 describes bulk data purchase products separate from the Data API subscription, not applicable, nothing to test there.
+
+
+## ORATS University Section 300 - Backtesting (Trading Tools platform, NOT Data API)
+
+IMPORTANT: Everything in section 300 describes ORATS Trading Tools (the Backtester, Custom Backtester, Strategy Optimizer), a separate subscription from the Data API Mike actually has. None of this is accessible through the current API subscription.
+
+### 301 - Backtesting Methodology
+Four common backtesting pitfalls: unrealistic execution prices, overfitting, path dependency, notional vs margin return confusion. ORATS uses quotes from 14 minutes before close, slippage 75 percent of bid ask for single legs down to 53 percent for four leg spreads. Database of 300 million plus precomputed backtests across 100 plus symbols and 15 strategies.
+
+### 302 - Input Parameters
+Entry criteria: DTE, strike deltas, spread yield, five technical triggers - VIX price, SMA, 14 day RSI, IV percentile 1 year, Slope percentile 1 year. Exit criteria: stop losses -25/-50/-75 percent, profit targets +25 up to +300 percent.
+
+### 303 - Measuring Performance
+37 performance metrics across four categories: Return, Risk, P&L, Others. Sharpe vs Sortino ratio explained, Sortino only penalizes downside volatility, may suit Mikes risk averse approach better. Three ranking algorithms: Best Overall Performance, Best Conservative Winner, Best Return on Risk.
+
+### 304 - Custom Backtesting
+Build fully custom backtests, not just search precomputed ones. 15 plus entry parameters, matching exit parameters. Two modes: End of Day (2007 to present) and Intraday (1 minute data, August 2020 to present). Exact slippage formula given: Buy = Bid plus (Ask minus Bid) times slippage percent. Commission 1 dollar per contract plus 0.01 per share of stock.
+
+### 305 - Optimizing Your Strategy
+Strategy Optimizer adds any of 98 proprietary ORATS indicators (includes everything tested today: slope, contango, IV percentile, forward vol) plus technical indicators (SMA, Bollinger Bands, RSI, CCI) on top of a base strategy. Uses P-value statistical validation, P less than 0.05 considered meaningful, plus permutation testing with 10000 Monte Carlo simulations to distinguish genuine edge from overfitting or luck.
+
+## Section 300 SUMMARY
+All five sections (301-305) describe the Trading Tools Backtester and Strategy Optimizer, a separate paid product from the Data API. Mike currently only has the Data API subscription. If Mike ever wants to actually RUN these backtests (not just understand the methodology), that requires the additional Trading Tools subscription, previously considered and declined in favor of API-only. Useful conceptually for understanding what a rigorous backtest looks like (execution price realism, slippage, P-value validation), which can inform Mikes own manual historical analysis approach already used successfully for contango and VIX threshold calibration.
