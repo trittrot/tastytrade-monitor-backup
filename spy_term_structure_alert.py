@@ -173,6 +173,10 @@ def build_commentary(data):
                 lines.append('Forward ratio ' + label + ': ' + str(val) + ' - notable divergence from 1.0, per ORATS this has historically foreshadowed larger moves')
             else:
                 lines.append('Forward ratio ' + label + ': ' + str(val) + ' - close to 1.0, no anomaly flagged')
+            if val > 1.0:
+                lines.append('  fbfwd ratio above 1.0: consistent with low-vol regime, historically associated with buying volatility strategies')
+            else:
+                lines.append('  fbfwd ratio below 1.0: consistent with high-vol regime, historically associated with selling volatility strategies')
 
     lines.append('')
     lines.append('Note: this commentary describes what the data shows, it is not a trade recommendation.')
