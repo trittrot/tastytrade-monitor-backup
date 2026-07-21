@@ -96,3 +96,38 @@ SPY intraday range 499.75 to 512.79, open 501.10, close 506.72
 Near term one day implied vol approximately 43 percent at 50 delta
 
 This cross validation across independent metrics all agreeing on the same day being extreme gives strong confidence ORATS data is reliable and the near miss was a genuine multi sigma event not a data anomaly.
+
+
+## Section 200 University Cross-Reference - Additional Fields Verified
+
+### Slope family (Core General endpoint, /datav2/cores)
+slope - near-term 30-day skew steepness. Tested SPY 2026-07-20: 7.8781
+slopeInf - long-dated skew steepness. Tested: 8.3362
+slopeFcst - ORATS forecast of near-term slope. Tested: 8.3447
+slopeFcstInf - forecast of long-dated slope. Tested: 9.0042
+deriv - curvature of skew, near-term. Tested: 0.1709
+derivInf - curvature, long-dated. Tested: 0.2746
+slopepctile - one year percentile for slope. Tested: 73.02
+slopeavg1m - trailing month average slope. Tested: 6.8251
+slopeavg1y - trailing year average slope. Tested: 7.2506
+slopeStdv1y - standard deviation of slope over the year. Tested: 1.03
+etfSlopeRatio and variants - slope divided by sector ETF slope. Tested on SPY itself, returned 0, since SPY is the benchmark ETF, this field is only meaningful for individual stocks compared to their sector ETF, not for SPY itself.
+LESSON: slopepctile and related trailing average fields live on Core General (cores endpoint), NOT on SMV Summaries, despite being documented on the same page as other slope fields.
+
+### Earnings and implied move fields
+exErnIv30d, exErnIv90d - implied volatility with earnings effect stripped out. Tested AAPL: 25.87 percent and 26.73 percent
+ieeEarnEffect - market implied earnings effect. Tested: 2.5066
+impliedMove - percentage stock move priced into options for next earnings. Tested AAPL: 5.49 percent
+absAvgErnMv - historical average earnings day move, last 12 announcements. Tested AAPL: 2.0705 percent
+ernMvStdv - standard deviation of historical earnings moves. Tested: 1.8642
+fcstErnEffct - ORATS own forecast of earnings effect, comparable against market implied ieeEarnEffect. Tested: 1.4836 vs market implied 2.5066, suggesting market may be pricing a larger earnings reaction than ORATS model expects.
+These fields split across two endpoints: exErnIv and impliedMove live on Summaries, while absAvgErnMv, ernMvStdv, fcstErnEffct live on Core Earn (cores endpoint).
+
+### Forward and Flat Forward IV fields (Summaries endpoint)
+fwd30_20, fwd90_30 - true forward volatility between two tenors. Tested SPY: 15.05 percent and 15.15 percent
+ffwd30_20, ffwd90_30 - flat forward volatility, simpler non-compounded version. Tested: 15.49 percent and 15.40 percent
+fbfwd30_20, fbfwd90_30 - ratio of flat forward divided by forward. Tested: 1.0294 and 1.0168
+Per ORATS University section 203, extremes in this ratio have historically foreshadowed larger moves. Values close to 1.0 (as tested today) indicate no extreme divergence currently, this signal is quiet.
+
+## Section 200 University Cross-Reference - FULLY COMPLETE
+Every field explicitly discussed in sections 201, 202, and 203 has now been tested and confirmed working with real data, across the Summaries and Cores endpoints. Section 204 describes bulk data purchase products separate from the Data API subscription, not applicable, nothing to test there.
