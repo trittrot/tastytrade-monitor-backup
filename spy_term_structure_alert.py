@@ -6,6 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 from datetime import date, datetime
 from secrets_loader import get_secret
+from orats_api_helper import fetch_json_with_retry
 from alerts import send_alert
 
 LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'spy_term_structure_log.csv')
@@ -19,16 +20,12 @@ def fetch_term_structure():
     url1 = f'https://api.orats.io/datav2/summaries?token={token}&ticker={TICKER}&fields={SUMMARIES_FIELDS}'
     url2 = f'https://api.orats.io/datav2/cores?token={token}&ticker={TICKER}&fields={CORES_FIELDS}'
 
-    with urllib.request.urlopen(url1) as response:
-        summaries_data = json.loads(response.read())['data'][0]
-
-    with urllib.request.urlopen(url2) as response:
-        cores_data = json.loads(response.read())['data'][0]
+    summaries_data = fetch_json_with_retry(url1)['data'][0]
+    cores_data = fetch_json_with_retry(url2)['data'][0]
 
     ivrank_fields = 'ticker,tradeDate,ivRank1m,ivPct1m,ivRank1y,ivPct1y'
     url3 = f'https://api.orats.io/datav2/ivrank?token={token}&ticker={TICKER}&fields={ivrank_fields}'
-    with urllib.request.urlopen(url3) as response:
-        ivrank_data = json.loads(response.read())['data'][0]
+    ivrank_data = fetch_json_with_retry(url3)['data'][0]
 
     combined = {**summaries_data, **cores_data, **ivrank_data}
     return combined

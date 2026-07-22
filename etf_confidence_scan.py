@@ -5,6 +5,7 @@ import os
 import time
 from datetime import date, datetime, timedelta
 from secrets_loader import get_secret
+from orats_api_helper import fetch_json_with_retry
 from alerts import send_alert
 
 LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'etf_confidence_log.csv')
@@ -33,10 +34,9 @@ def fetch_confidence_batch():
         batch = SYMBOLS[i:i+10]
         ticker_str = ','.join(batch)
         url = f'https://api.orats.io/datav2/summaries?token={token}&ticker={ticker_str}&fields=ticker,confidence'
-        with urllib.request.urlopen(url) as response:
-            data = json.loads(response.read())
-            for item in data['data']:
-                results[item['ticker']] = item['confidence']
+        data = fetch_json_with_retry(url)
+        for item in data['data']:
+            results[item['ticker']] = item['confidence']
     return results
 
 def write_qualifying_list(results):

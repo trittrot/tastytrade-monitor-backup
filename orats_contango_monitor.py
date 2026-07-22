@@ -6,6 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 from datetime import date
 from secrets_loader import get_secret
+from orats_api_helper import fetch_json_with_retry
 from alerts import send_alert
 
 LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'orats_contango_log.csv')
@@ -18,8 +19,7 @@ SIGNIFICANT_THRESHOLD = 2.0
 def fetch_contango():
     token = get_secret('orats-api-token')
     url = f'https://api.orats.io/datav2/cores?token={token}&ticker={TICKER}&fields=tradeDate,contango'
-    with urllib.request.urlopen(url) as response:
-        data = json.loads(response.read())
+    data = fetch_json_with_retry(url)
     return data['data'][0]['contango'], data['data'][0]['tradeDate']
 
 def get_previous_reading(log_path, today):

@@ -7,6 +7,7 @@ import smtplib
 from email.mime.text import MIMEText
 from datetime import date, datetime
 from secrets_loader import get_secret
+from orats_api_helper import fetch_json_with_retry
 from alerts import send_alert
 from etf_confidence_scan import is_cash_market_hours, QUALIFYING_PATH
 
@@ -33,14 +34,12 @@ def fetch_iv_data(symbols):
         ticker_str = ','.join(batch)
 
         url1 = f'https://api.orats.io/datav2/cores?token={token}&ticker={ticker_str}&fields=ticker,ivPctile1y'
-        with urllib.request.urlopen(url1) as response:
-            data1 = json.loads(response.read())
-            pctile_map = {item['ticker']: item.get('ivPctile1y') for item in data1['data']}
+        data1 = fetch_json_with_retry(url1)
+        pctile_map = {item['ticker']: item.get('ivPctile1y') for item in data1['data']}
 
         url2 = f'https://api.orats.io/datav2/ivrank?token={token}&ticker={ticker_str}&fields=ticker,ivRank1y'
-        with urllib.request.urlopen(url2) as response:
-            data2 = json.loads(response.read())
-            rank_map = {item['ticker']: item.get('ivRank1y') for item in data2['data']}
+        data2 = fetch_json_with_retry(url2)
+        rank_map = {item['ticker']: item.get('ivRank1y') for item in data2['data']}
 
         for t in batch:
             results[t] = (pctile_map.get(t), rank_map.get(t))
