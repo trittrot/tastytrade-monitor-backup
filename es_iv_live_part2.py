@@ -1,0 +1,4 @@
+addition = "\ndef send_iv_email(iv_pctile, iv_rank, today, now):\n    body = 'ES IV Percentile Alert - ' + today + ' at ' + now + ' UK' + chr(10) + chr(10)\n    body = body + 'IV Percentile: ' + str(round(iv_pctile,2)) + '% (threshold: ' + str(THRESHOLD) + '%)' + chr(10)\n    body = body + 'IV Rank: ' + str(round(iv_rank,2)) + '%' + chr(10)\n\n    password = get_secret('miket-gmail-app-password').replace(' ', '')\n    from_addr = get_secret('miket-email')\n    to_addr = get_secret('mike-email')\n    msg = MIMEText(body)\n    msg['Subject'] = 'ES IV Percentile Alert - ' + today\n    msg['From'] = from_addr\n    msg['To'] = to_addr\n    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:\n        server.login(from_addr, password)\n        server.sendmail(from_addr, [to_addr], msg.as_string())\n"
+with open('es_iv_live_monitor.py', 'a') as f:
+    f.write(addition)
+print("Chunk 2 written")
