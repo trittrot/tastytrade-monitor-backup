@@ -124,7 +124,7 @@ def run_check():
             sms_msg = 'Tastytrade: ORATS contango SPY = ' + str(round(contango,3)) + ' (no prior day to compare)'
 
         if deviation_pts is not None:
-            sms_msg = sms_msg + '. 10MA dev: ' + str(round(deviation_pts,3)) + 'pts (' + label + ')'
+            sms_msg = sms_msg + '. 10MA: ' + str(round(ma,3)) + ' dev: ' + str(round(deviation_pts,3)) + 'pts (' + label + ')'
             if label == 'CAUTION':
                 sms_msg = sms_msg + '. Monitor closely.'
             elif label == 'SIGNIFICANT':
