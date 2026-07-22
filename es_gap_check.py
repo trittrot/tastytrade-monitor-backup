@@ -56,9 +56,9 @@ async def check_es_gap(session):
         writer.writerow([today, last_close, round(current_price, 2), round(gap_points, 2), round(gap_pct, 4)])
 
     if abs(gap_pct) >= THRESHOLD_PCT:
-        msg = f"Tastytrade ALERT: ES spot {current_price:.2f} - {direction} {gap_pct:+.2f}% ({gap_points:+.2f} pts) at London open"
+        msg = f"Tastytrade ALERT: ES spot {current_price:.2f} - {direction} {gap_points:+.2f} pts ({gap_pct:+.2f}%) at London open"
     else:
-        msg = f"Tastytrade: ES spot {current_price:.2f} - {direction} {gap_pct:+.2f}% ({gap_points:+.2f} pts) at London open - routine"
+        msg = f"Tastytrade: ES spot {current_price:.2f} - {direction} {gap_points:+.2f} pts ({gap_pct:+.2f}%) at London open - routine"
 
     print(msg)
     send_alert(msg)
