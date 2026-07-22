@@ -8,7 +8,6 @@ def run_heartbeat():
         session = authenticate_production()
         msg = f"Tastytrade monitor heartbeat OK - {today}"
         print(msg)
-        send_alert(msg)
         return True
     except Exception as e:
         msg = f"Tastytrade monitor heartbeat FAILED - {today} - {e}"
