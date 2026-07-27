@@ -51,14 +51,14 @@ def determine_trend(price, ma20, ma50, ma100):
         return 'NEUTRAL - price mixed relative to moving averages, no clear trend alignment'
 
 if __name__ == '__main__':
-    print('Fetching SPY daily price history, this will take a few minutes...')
-    prices = fetch_daily_prices('SPY', 280)
+    import sys
+    ticker = sys.argv[1].upper() if len(sys.argv) > 1 else 'SPY'
+    print('Fetching ' + ticker + ' daily price history, this will take a few minutes...')
+    prices = fetch_daily_prices(ticker, 420)
     print('Total trading days fetched: ' + str(len(prices)))
-
     latest_date, latest_price, ma20, ma50, ma100 = calculate_moving_averages(prices)
-
     print()
-    print('=== SPY Trend Determination - ' + latest_date + ' ===')
+    print('=== ' + ticker + ' Trend Determination - ' + latest_date + ' ===')
     print('Latest close: ' + str(latest_price))
     print('20 day MA: ' + str(round(ma20,2) if ma20 else 'N/A'))
     print('50 day MA: ' + str(round(ma50,2) if ma50 else 'N/A'))

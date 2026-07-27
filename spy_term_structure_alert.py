@@ -15,16 +15,18 @@ TICKER = 'SPY'
 SUMMARIES_FIELDS = 'ticker,tradeDate,exErnIv10d,exErnIv20d,exErnIv30d,exErnIv60d,exErnIv90d,exErnIv6m,exErnIv1y,contango,fwd30_20,fwd60_30,fwd90_60,fwd180_90,fwd90_30,fbfwd30_20,fbfwd60_30,fbfwd90_60,fbfwd180_90,fbfwd90_30,confidence,iv30d,rSlp30'
 CORES_FIELDS = 'ticker,tradeDate,slope,slopeInf,slopeFcst,slopeFcstInf,slopepctile,ivPctile1y,ivHvXernRatio,orHvXern20d,deriv,derivInf'
 
-def fetch_term_structure():
+def fetch_term_structure(ticker=None):
+    if ticker is None:
+        ticker = TICKER
     token = get_secret('orats-api-token')
-    url1 = f'https://api.orats.io/datav2/summaries?token={token}&ticker={TICKER}&fields={SUMMARIES_FIELDS}'
-    url2 = f'https://api.orats.io/datav2/cores?token={token}&ticker={TICKER}&fields={CORES_FIELDS}'
+    url1 = f'https://api.orats.io/datav2/summaries?token={token}&ticker={ticker}&fields={SUMMARIES_FIELDS}'
+    url2 = f'https://api.orats.io/datav2/cores?token={token}&ticker={ticker}&fields={CORES_FIELDS}'
 
     summaries_data = fetch_json_with_retry(url1)['data'][0]
     cores_data = fetch_json_with_retry(url2)['data'][0]
 
     ivrank_fields = 'ticker,tradeDate,ivRank1m,ivPct1m,ivRank1y,ivPct1y'
-    url3 = f'https://api.orats.io/datav2/ivrank?token={token}&ticker={TICKER}&fields={ivrank_fields}'
+    url3 = f'https://api.orats.io/datav2/ivrank?token={token}&ticker={ticker}&fields={ivrank_fields}'
     ivrank_data = fetch_json_with_retry(url3)['data'][0]
 
     combined = {**summaries_data, **cores_data, **ivrank_data}
