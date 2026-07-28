@@ -11,6 +11,7 @@ from secrets_loader import get_secret
 
 LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'es_iv_percentile_log.csv')
 THRESHOLD = 80.0
+THRESHOLD_HIGH = 90.0
 POLL_INTERVAL_SECONDS = 60
 REAUTH_INTERVAL_HOURS = 4
 
@@ -44,6 +45,7 @@ def run_monitor():
             session_start = datetime.now()
             today = date.today().isoformat()
             already_alerted = False
+            already_alerted_high = False
 
             print('[' + datetime.now().strftime('%H:%M:%S') + '] Authenticated. Starting ES IV percentile monitor for ' + today)
 
@@ -56,6 +58,7 @@ def run_monitor():
                 if current_today != today:
                     today = current_today
                     already_alerted = False
+                    already_alerted_high = False
                     print('New day: ' + today + ' - alert flag reset')
 
                 try:
@@ -75,6 +78,13 @@ def run_monitor():
                         send_alert(sms_msg)
                         send_iv_email(iv_pctile, iv_rank, today, now)
                         already_alerted = True
+
+                    if iv_pctile > THRESHOLD_HIGH and not already_alerted_high:
+                        sms_msg_high = 'Tastytrade ALERT: ES IV Percentile ' + str(round(iv_pctile,1)) + '% exceeds ' + str(THRESHOLD_HIGH) + '% HIGH threshold. IV Rank: ' + str(round(iv_rank,1)) + '%'
+                        send_alert(sms_msg_high)
+                        already_alerted_high = True
+                    elif iv_pctile <= THRESHOLD_HIGH and already_alerted_high:
+                        already_alerted_high = False
                         print('[' + now + '] ALERT sent - IV percentile ' + str(round(iv_pctile,1)) + '%')
                     elif iv_pctile <= THRESHOLD and already_alerted:
                         already_alerted = False
