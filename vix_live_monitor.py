@@ -1,6 +1,19 @@
 import asyncio
 import time
 from datetime import date, datetime, timedelta
+import urllib.request
+import csv
+import io
+
+def fetch_cboe_prior_close():
+    url = "https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv"
+    with urllib.request.urlopen(url) as response:
+        csv_text = response.read().decode('utf-8')
+    reader = csv.DictReader(io.StringIO(csv_text))
+    rows = list(reader)
+    last_row = rows[-1]
+    return float(last_row['CLOSE']), last_row['DATE']
+
 from tastytrade import DXLinkStreamer
 from tastytrade.dxfeed import Trade
 from auth import authenticate_production
@@ -30,8 +43,18 @@ async def run_vix_monitor():
         try:
             session = authenticate_production()
             session_start = datetime.now()
-            today = date.today().isoformat()
-            open_price = None
+            now_startup = datetime.now()
+            reset_time_startup = now_startup.replace(hour=21, minute=15, second=0, microsecond=0)
+            if now_startup >= reset_time_startup:
+                today = now_startup.date().isoformat()
+            else:
+                today = (now_startup.date() - timedelta(days=1)).isoformat()
+            try:
+                open_price, cboe_date = fetch_cboe_prior_close()
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] Startup mid-cycle - using CBOE prior close: {open_price} (dated {cboe_date})")
+            except Exception as e:
+                open_price = None
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] Could not fetch CBOE prior close: {e}")
             fired_up = set()
             fired_down = set()
 
@@ -45,13 +68,15 @@ async def run_vix_monitor():
                         print(f"[{datetime.now().strftime('%H:%M:%S')}] Scheduled re-authentication ({REAUTH_INTERVAL_HOURS}h elapsed)")
                         break
 
-                    current_today = date.today().isoformat()
-                    if current_today != today:
-                        today = current_today
+                    now_check = datetime.now()
+                    reset_time = now_check.replace(hour=21, minute=15, second=0, microsecond=0)
+                    current_reset_date = now_check.date().isoformat() if now_check >= reset_time else (now_check.date() - timedelta(days=1)).isoformat()
+                    if current_reset_date != today:
+                        today = current_reset_date
                         open_price = None
                         fired_up = set()
                         fired_down = set()
-                        print(f"New trading day: {today} - thresholds reset")
+                        print(f"New reference cycle (post 21:15 UK): {today} - thresholds reset")
 
                     try:
                         t = await asyncio.wait_for(streamer.get_event(Trade), timeout=30)
