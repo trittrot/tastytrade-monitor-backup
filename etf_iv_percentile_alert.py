@@ -9,13 +9,28 @@ from datetime import date, datetime
 from secrets_loader import get_secret
 from orats_api_helper import fetch_json_with_retry
 from alerts import send_alert
-from etf_confidence_scan import is_cash_market_hours, QUALIFYING_PATH
+from etf_confidence_scan import QUALIFYING_PATH
+from datetime import datetime as dt_check
+
+CASH_MARKET_OPEN_HOUR = 14
+CASH_MARKET_OPEN_MINUTE = 40
+CASH_MARKET_CLOSE_HOUR = 21
+CASH_MARKET_CLOSE_MINUTE = 0
+
+def is_cash_market_hours():
+    now = dt_check.now()
+    if now.weekday() >= 5:
+        return False
+    open_time = now.replace(hour=CASH_MARKET_OPEN_HOUR, minute=CASH_MARKET_OPEN_MINUTE, second=0, microsecond=0)
+    close_time = now.replace(hour=CASH_MARKET_CLOSE_HOUR, minute=CASH_MARKET_CLOSE_MINUTE, second=0, microsecond=0)
+    return open_time <= now <= close_time
 
 LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'etf_iv_percentile_log.csv')
 IV_THRESHOLD = 80.0
 POLL_INTERVAL_SECONDS = 300
 alerted_today = set()
 current_day = date.today().isoformat()
+failure_alerted_today = False
 
 def get_qualifying_symbols():
     if not os.path.exists(QUALIFYING_PATH):
@@ -63,7 +78,7 @@ def send_iv_email(alerts_list, today, now):
         server.sendmail(from_addr, [to_addr], msg.as_string())
 
 def run_monitor():
-    global current_day, alerted_today
+    global current_day, alerted_today, failure_alerted_today
     print('ETF IV Percentile checker started - reads qualifying list from confidence scan, ' + str(POLL_INTERVAL_SECONDS) + 's interval')
     while True:
         try:
@@ -73,11 +88,13 @@ def run_monitor():
             if today != current_day:
                 current_day = today
                 alerted_today = set()
+                failure_alerted_today = False
                 print('New day: ' + today + ' - alert flags reset')
 
             if is_cash_market_hours():
                 symbols = get_qualifying_symbols()
                 iv_data = fetch_iv_data(symbols)
+                failure_alerted_today = False
 
                 file_exists = os.path.exists(LOG_PATH)
                 with open(LOG_PATH, 'a', newline='') as f:
@@ -109,7 +126,11 @@ def run_monitor():
 
         except Exception as e:
             print('Check error: ' + str(e))
-            send_alert('Tastytrade monitor: ETF IV percentile check FAILED - ' + str(e))
+            if not failure_alerted_today:
+                send_alert('Tastytrade monitor: ETF IV percentile check FAILED - ' + str(e))
+                failure_alerted_today = True
+            else:
+                print('Suppressing repeat failure alert - already notified today')
 
         time.sleep(POLL_INTERVAL_SECONDS)
 
