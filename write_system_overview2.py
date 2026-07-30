@@ -1,0 +1,4 @@
+addition = "\n## Continuous Background Services (systemd)\n\n| Service | Description |\n|---------|-------------|\n| vix_live_monitor.py | Staged plus or minus 10, 15, 20, 25, 30 percent VIX alerts. Reference point is prior day's genuine 21:15 UK official CBOE close (fixed 2026-07-28), not midnight |\n| etf_confidence_scan.py (Stage 1) | 21 Liquid ETFs, confidence over 80 percent, checked every 5 min, cash hours only (14:30 to 21:00 UK), feeds Stage 2 |\n| etf_iv_percentile_alert.py (Stage 2) | IV percentile over 80 percent, checked on Stage 1 qualifying symbols only, starts 14:40 UK (delayed from 14:30 on 2026-07-28), failure alerts suppressed after first per day |\n| es_iv_live_monitor.py | Two tier ES IV percentile monitor, 80 percent and 90 percent high priority tier (added 2026-07-28), each tier tracked independently, checked every 60 seconds |\n"
+with open('SYSTEM_OVERVIEW.md', 'a') as f:
+    f.write(addition)
+print("Chunk 2 written")
