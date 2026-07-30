@@ -1,5 +1,6 @@
 from twilio.rest import Client
 from secrets_loader import get_secret
+from datetime import datetime
 
 def send_alert(message_text):
     try:
@@ -8,8 +9,12 @@ def send_alert(message_text):
         from_number = get_secret("twilio-from-number")
         to_number = get_secret("mike-mobile-number")
         client = Client(account_sid, auth_token)
+
+        timestamp = datetime.now().strftime('%H:%M UK %Y-%m-%d')
+        full_message = f"{timestamp}\n{message_text}"
+
         message = client.messages.create(
-            body=message_text,
+            body=full_message,
             from_=from_number,
             to=to_number
         )
