@@ -19,23 +19,21 @@ from tastytrade.dxfeed import Trade
 from auth import authenticate_production
 from alerts import send_alert
 
-THRESHOLDS = [10, 15, 20, 25, 30]
+THRESHOLDS = [3, 5, 8, 15]
 REAUTH_INTERVAL_HOURS = 4
 
 UP_MESSAGES = {
-    10: "VIX +10% from open - review existing short premium positions",
-    15: "VIX +15% from open - consider adjustments to short premium positions",
-    20: "VIX +20% from open - consider new short premium entries (check ORATS)",
-    25: "VIX +25% from open - significant vol event, scan ORATS for opportunities",
-    30: "VIX +30% from open - major vol event, review book thoroughly",
+    3: "VIX +3 points from close - approx 1 standard deviation move, review existing short premium positions",
+    5: "VIX +5 points from close - approx 2 standard deviation move, consider adjustments to short premium positions",
+    8: "VIX +8 points from close - significant vol event, close all watertight doors, review book thoroughly",
+    15: "VIX +15 points from close - approx 3 standard deviation move, major vol event",
 }
 
 DOWN_MESSAGES = {
-    10: "VIX -10% from open - vol cooling, monitor long premium positions",
-    15: "VIX -15% from open - review long premium/hedge positions",
-    20: "VIX -20% from open - consider whether long hedge still needed",
-    25: "VIX -25% from open - significant vol collapse, reassess hedge",
-    30: "VIX -30% from open - major vol collapse, review hedge urgently",
+    3: "VIX -3 points from close - approx 1 standard deviation move, vol cooling, monitor long premium positions",
+    5: "VIX -5 points from close - approx 2 standard deviation move, review long premium/hedge positions",
+    8: "VIX -8 points from close - significant vol collapse, reassess hedge",
+    15: "VIX -15 points from close - approx 3 standard deviation move, major vol collapse, review hedge urgently",
 }
 
 async def run_vix_monitor():
@@ -89,16 +87,16 @@ async def run_vix_monitor():
                         print(f"[{datetime.now().strftime('%H:%M:%S')}] Reference (open) price set: {open_price}")
                         continue
 
-                    pct_change = (price - open_price) / open_price * 100
+                    points_change = price - open_price
 
                     for threshold in sorted(THRESHOLDS, reverse=True):
-                        if pct_change >= threshold and threshold not in fired_up:
-                            msg = f"Tastytrade VIX ALERT: {UP_MESSAGES[threshold]} (now {price:.2f}, {pct_change:+.1f}%)"
+                        if points_change >= threshold and threshold not in fired_up:
+                            msg = f"Tastytrade VIX ALERT: {UP_MESSAGES[threshold]} (now {price:.2f}, {points_change:+.1f} pts)"
                             print(msg)
                             send_alert(msg)
                             fired_up.add(threshold)
-                        if pct_change <= -threshold and threshold not in fired_down:
-                            msg = f"Tastytrade VIX ALERT: {DOWN_MESSAGES[threshold]} (now {price:.2f}, {pct_change:+.1f}%)"
+                        if points_change <= -threshold and threshold not in fired_down:
+                            msg = f"Tastytrade VIX ALERT: {DOWN_MESSAGES[threshold]} (now {price:.2f}, {points_change:+.1f} pts)"
                             print(msg)
                             send_alert(msg)
                             fired_down.add(threshold)
