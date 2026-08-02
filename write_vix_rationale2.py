@@ -1,0 +1,4 @@
+addition = "\n### Change 2: Switched from percentage to points (handles)\nMike was advised that professional VIX traders use points or handles, not percentage moves, since percentage change of an already-abstract volatility measure is a second order concept. Raw point moves correspond directly to real tradeable dollar amounts on VIX futures and options, and to standard deviation based risk framing.\n\nSwitched the alert system entirely from percentage thresholds to point thresholds: 3, 5, 8, and 15 points, corresponding approximately to 1, 2, an intermediate tier, and 3 standard deviation moves respectively. This was Mikes own explicit specification, based on the round number heuristic that a 3 point VIX move is approximately 1 standard deviation and a 5 point move is approximately 2 standard deviations.\n"
+with open('VIX_THRESHOLD_RATIONALE.md', 'a') as f:
+    f.write(addition)
+print("Chunk 2 written")
