@@ -20,6 +20,24 @@ from auth import authenticate_production
 from alerts import send_alert
 
 THRESHOLDS = [3, 5, 8, 15]
+
+REGIME_THRESHOLDS = {
+    'low': [2, 3, 4, 6],
+    'normal': [3, 5, 8, 15],
+    'elevated': [5, 8, 12, 20],
+    'extreme': [8, 12, 18, 25],
+}
+
+def get_regime_thresholds(reference_price):
+    if reference_price < 15:
+        regime = 'low'
+    elif reference_price < 25:
+        regime = 'normal'
+    elif reference_price < 35:
+        regime = 'elevated'
+    else:
+        regime = 'extreme'
+    return REGIME_THRESHOLDS[regime], regime
 REAUTH_INTERVAL_HOURS = 4
 
 UP_MESSAGES = {
@@ -47,9 +65,12 @@ async def run_vix_monitor():
                 today = now_startup.date().isoformat()
             else:
                 today = (now_startup.date() - timedelta(days=1)).isoformat()
+            active_thresholds = None
+            regime_name = None
             try:
                 open_price, cboe_date = fetch_cboe_prior_close()
-                print(f"[{datetime.now().strftime('%H:%M:%S')}] Startup mid-cycle - using CBOE prior close: {open_price} (dated {cboe_date})")
+                active_thresholds, regime_name = get_regime_thresholds(open_price)
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] Startup mid-cycle - CBOE prior close: {open_price} (dated {cboe_date}) - Regime: {regime_name} - Thresholds: {active_thresholds}")
             except Exception as e:
                 open_price = None
                 print(f"[{datetime.now().strftime('%H:%M:%S')}] Could not fetch CBOE prior close: {e}")
@@ -84,12 +105,13 @@ async def run_vix_monitor():
 
                     if open_price is None:
                         open_price = price
-                        print(f"[{datetime.now().strftime('%H:%M:%S')}] Reference (open) price set: {open_price}")
+                        active_thresholds, regime_name = get_regime_thresholds(open_price)
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}] Reference: {open_price} - Regime: {regime_name} - Thresholds: {active_thresholds}")
                         continue
 
                     points_change = price - open_price
 
-                    for threshold in sorted(THRESHOLDS, reverse=True):
+                    for threshold in sorted(active_thresholds, reverse=True):
                         if points_change >= threshold and threshold not in fired_up:
                             msg = f"Tastytrade VIX ALERT: {UP_MESSAGES[threshold]} (now {price:.2f}, {points_change:+.1f} pts)"
                             print(msg)
