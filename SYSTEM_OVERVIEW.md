@@ -9,7 +9,7 @@ Last updated: 2026-07-30
 | 07:30 | heartbeat.py | Confirms system is alive, always alerts |
 | 07:35 | es_gap_check.py | Compares ES to prior close, gap up/down, points prominent over percent |
 | 14:31 | es_gap_check.py | Same check, midday |
-| 15:00 | sp500_confidence_alert.py | S&P 500 confidence scan, 80 and 90 percent tiers, SMS plus email |
+| 21:16 | sp500_two_stage_scan.py | S&P 500 two-stage scan - Stage 1 confidence (80/90 percent tiers), Stage 2 ivPct1y IV percentile filter on Stage 1 qualifiers, SMS plus email |
 | 20:55 | es_gap_check.py | Same check, EOD |
 | 21:16 | orats_contango_monitor.py | SPY contango, day over day change plus 10 day moving average deviation, CAUTION and SIGNIFICANT tiers |
 | 21:16 | spy_term_structure_alert.py | Full SPY term structure snapshot with commentary, SMS plus email |
@@ -30,7 +30,7 @@ Last updated: 2026-07-30
 | Command | Purpose | Delivery |
 |---------|---------|----------|
 | mw-liq-etfs | Check current 21 Liquid ETFs confidence scan results | Screen only, reads live-updating file |
-| confidence-all | Full S&P 500 confidence scan, 80 and 90 percent tiers | Real SMS plus email every time run |
+| confidence-all | Full S&P 500 two-stage scan (confidence then ivPct1y) | Real SMS plus email every time run |
 | confidence SYMBOL | Single symbol confidence check | Real SMS only every time run |
 | contango SYMBOL | Live contango reading, defaults to SPY if no symbol given | Screen only |
 | term SYMBOL | Full term structure snapshot with commentary, defaults to SPY | Screen only |
