@@ -214,3 +214,56 @@ deriv, derivInf - curvature of skew
 3. Layer in the forward curve (fwd fields) to see what the market expects BETWEEN future dates, which can be more revealing than spot levels alone
 4. Watch fbfwd ratios for extremes as an anomaly check per ORATS guidance
 5. GAP: unlike slope, contango has no built-in percentile field (no contangopctile exists) - would need manual historical calculation for percentile context on the full curve, same approach already used for the 10-day moving average work
+
+
+## Market Width Family - mwAdj fields (found 2026-08-04)
+
+Mike identified mwAdj2y from an ORATS video. Initial single-endpoint test on Cores incorrectly suggested it did not exist. Correctly identified by testing across all major endpoints (Summaries, Cores, IV Rank, Monies Implied) that it genuinely lives on the SUMMARIES endpoint only, not Cores where mktWidthVol and mktWidthVolInf live.
+
+Confirmed real fields on Summaries endpoint (/datav2/summaries):
+mwAdj30 - near term (approx 30 day) adjusted market width. Tested SPY 2026-08-04: 0.0013
+mwAdj2y - long dated (2 year) adjusted market width. Tested SPY 2026-08-04: 0.0008
+
+Not found (tested, do not exist): mwAdj90, mwAdjInf
+
+Note near term (mwAdj30) was roughly 60 percent wider than long dated (mwAdj2y) on this test date, an interesting divergence worth further observation, similar pattern to slope vs slopeInf found earlier.
+
+LESSON REINFORCED: always test a field across multiple endpoints before concluding it does not exist. A single endpoint test returning no data is not sufficient evidence of non-existence, given ORATS repeatedly places related fields on different endpoints (slope on Cores vs rSlp30 on Summaries, ivPctile1y on Cores vs ivPct1y on IV Rank, contango on both Cores and Summaries, and now mwAdj fields on Summaries only, distinct from mktWidthVol fields on Cores only).
+
+
+## CORRECTION - mwAdj field purpose (per ORATS video, 2026-08-04)
+
+Initial assumption that mwAdj30 vs mwAdj2y were simply near-term vs long-term versions of the same concept was incomplete. Per an ORATS video Mike watched, these two fields serve genuinely DIFFERENT purposes tied to portfolio structure, not just different tenors of the same measurement:
+
+mwAdj30 - appropriate for evaluating liquidity of WORKING positions (Mikes own 45-90 DTE short premium trades)
+mwAdj2y - purpose built specifically for evaluating liquidity of PERMANENT LONG PUT HEDGES (far dated, far OTM protective puts), which ORATS treats as philosophically and structurally separate from working positions
+
+This directly aligns with Mikes own existing strategy of maintaining a permanent long put hedge separate from working short premium positions. No single 45-90 day specific market width field exists; mwAdj30 remains the best available near-term proxy for working position liquidity checks, while mwAdj2y should specifically be used when evaluating or rolling the long-dated hedge, not the working trades.
+
+
+## mwAdj30 Real World Validation (2026-08-04)
+
+Built mwadj30_scan.py: scans S&P 500 list for mwAdj30 below 0.005 threshold (a Gemini-sourced, NOT ORATS-documented, suggested strict liquidity cutoff), writes qualifying symbols to Tastytrade watchlist Orats SPY mwAdj30.
+
+First run found 6 of 500 symbols qualifying. Mike manually checked these 6 against Tastytrade own liquidity star rating: only 2 of 6 achieved TT highest liquidity rating, the other 4 did not, despite all 6 showing tight penny wide quoted spreads.
+
+IMPORTANT FINDING: mwAdj30 alone, even at a strict threshold, is NOT a reliable sole predictor of genuine tradeable liquidity per Tastytrade own assessment. Likely explanation: mwAdj30 measures quoted bid-ask spread width only, while Tastytrade star rating also factors in volume and open interest depth, which mwAdj30 does not capture. A tight quote does not guarantee real size behind it.
+
+Also clarified: SPY itself is never included in the sp500_symbols.txt list, since it is the index tracking ETF, not one of the 503 individual constituent companies. SPY own mwAdj30 (0.0013, tested separately) is not affected by this finding.
+
+PRACTICAL IMPLICATION: mwAdj30 should be treated as one input among several for liquidity assessment, not a standalone filter. Any future scanning logic should combine it with other signals (confidence, volume data if available) rather than relying on it alone.
+
+
+## Option Strategy Scanner Field Mapping (2026-08-04)
+
+Mike found a description (source unverified, possibly AI generated) of ORATS own Option Scanner logic, structured as four pillars. Cross referenced against fields already tested and confirmed working in this project:
+
+Pillar 1 - Volatility Edge (IV vs Forecast): maps to ivHvXernRatio (confirmed working, Cores endpoint). Above 1 means IV overpriced vs realized, favors net short premium (credit spreads, short puts, iron condors, short strangles). Below 1 favors net long premium (debit spreads, long straddles, calendars, diagonals).
+
+Pillar 2 - Term Structure (single vs multi expiration): maps to contango (extensively tested and live in system) plus exErnIv10d through exErnIv1y (earnings isolated IV curve, confirmed working) plus fwd and fbfwd fields (confirmed working). Elevated near term IV relative to longer term favors calendars/diagonals.
+
+Pillar 3 - Skew and Curvature (strike selection): maps to slope, slopepctile, slopeFcst (confirmed working, already used in term structure commentary) plus deriv, derivInf (confirmed working, curvature specifically). Steep put skew favors short puts/bull credit spreads. High curvature favors butterflies/iron condors.
+
+Pillar 4 - Directional Bias: maps to Mikes own trend command (20d/50d/100d moving average bullish/neutral/bearish determination, already built and working).
+
+CONCLUSION: every underlying data input for this four pillar framework is already confirmed accessible via the Delayed Data API and in several cases already built into Mikes live system. What is NOT yet built is the COMBINING logic that applies this decision framework together for a given symbol to suggest a specific strategy. This is a real, addressable future build (construction work using existing proven data), not a fundamental data access gap. Directly addresses and resolves Mikes earlier concern that lack of ORATS Desktop Option Scanner represented a hard blocker.
