@@ -16,4 +16,5 @@ def load_all_secrets():
         "twilio_auth_token": get_secret("twilio-auth-token"),
         "orats_api_token": get_secret("orats-api-token"),
         "gmail_app_password": get_secret("miket-gmail-app-password"),
+        "fred_api_key": get_secret("fred-api-key"),
     }
